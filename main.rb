@@ -1,5 +1,4 @@
 class Station
-
   attr_reader :trains_on_station
 
   def initialize(name)
@@ -14,7 +13,6 @@ class Station
   def trains_based_on_type(type)
     if type == 'freight'
       return @trains_on_station.select { | train | train.type == 'freight' }
-
     elsif type == 'passenger'
       return @trains_on_station.select { | train | train.type == 'passenger' }
     end
@@ -23,11 +21,10 @@ end
 
 
 class Train
-  attr_reader :type
-  attr_reader :speed
-  attr_reader :wagons
+  attr_reader :type, :speed, :wagons
+
   def initialize(type, wagons)  # type = freight or passenger
-    @number = Random.new.rand(100).to_s
+    @number = ('a'..'z').to_a.shuffle[0,8].join
     @type = type
     @wagons = wagons
     @speed = 0
@@ -62,17 +59,38 @@ class Train
     @current_location = 0
   end
 
-  def move(direction)
-    if direction == 'forward'
-      @current_location += 1
-    elsif  direction == 'backward'
-      @current_location -= 1
+  def move_forward
+    @current_location += 1
+  end
+
+  def move_backward
+    @current_location -= 1
+  end
+
+  def previous_station
+    if @route.all_stations.length == 0
+      puts "Станций нет"
+    else
+      puts "Предыдущая станция - #{@route.all_stations[@current_location-1]}"
     end
   end
 
-  def location
-    puts "Предыдущая станция - #{@route.all_stations[@current_location-1]}, текущая - #{@route.all_stations[@current_location]}, следующая - #{@route.all_stations[@current_location-1]}"
+  def current_station
+    if @route.all_stations.length == 0
+      puts "Станций нет"
+    else
+      puts "Текущая станция - #{@route.all_stations[@current_location]}"
+    end
   end
+
+  def next_station
+    if @route.all_stations.length == 0
+      puts "Станций нет"
+    else
+      puts "Следующая станция - #{@route.all_stations[@current_location+1]}"
+    end
+  end
+
 end
 
 
