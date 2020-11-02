@@ -23,8 +23,8 @@ end
 class Train
   attr_reader :type, :speed, :wagons
 
-  def initialize(type, wagons)  # type = freight or passenger
-    @number = ('a'..'z').to_a.shuffle[0,8].join
+  def initialize(number, type, wagons)  # type = freight or passenger
+    @number = number
     @type = type
     @wagons = wagons
     @speed = 0
