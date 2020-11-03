@@ -1,115 +1,63 @@
-class Station
-  attr_reader :trains_on_station
+require_relative 'station'
+require_relative 'train'
+require_relative 'route'
 
-  def initialize(name)
-    @name = name
-    @trains_on_station = []
+
+stations = []
+station_names = []
+while true do
+  print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
+        "(1) - действия со станциями\t (2) - действия с поездами\n"\
+        "(3) - действия с маршрутами\t (0) - выход\n"
+  STDOUT.flush
+  key = gets.chomp
+  if key == '0'
+    break
   end
+    if key == '1'
+      # создавать станции, просмотреть список станций и список поездов на станции
+      print "Категория: действия со станциями\n"\
+            "(1) - cоздать станцию\t (2) - просмотреть список станций\n"\
+            "(3) - просмотреть список поездов на станции\t (0) - назад\n"
+      key = gets.chomp
+      if key == '1'
+        print "Введите имя станции: "
+        name = gets.chomp
+        station = Station.new(name)
+        stations << station
+        station_names << station.name
+      elsif key == '2'
+        print "#{station_names}\n"
+      elsif key == '3'
+        print "Введите имя станции, на которой вы хотите посмотреть список поездов: "
+        name = gets.chomp
+        index = station_names.index(name)
+        trains_on_current_station = stations[index].trains_on_station
+        if trains_on_current_station.length == 0
+          "\n На этой станции нет поездов"
+        else
+          print "#{trains_on_current_station}\n"
+        end
+      end
 
-  def add_train(train)
-    @trains_on_station << train
-  end
+    elsif key == '2'
+      # создать поезд, назначить маршрут поезду, добавить вагон к поезду, отцепить вагон от поезда, перемещать поезда
+      # vpered nazad
+      print "Категория: действия с поездами\n"\
+            "(1) - cоздать поезд\t (2) - назначить маршрут\n"\
+            "(3) - добавить вагон\t (4) - отцепить вагон\n"\
+            "(5) - переместить поезд вперед\t (6) - переместить поезд назад\n"\
+            "(0)- назад\n"
+      key = gets.chomp
+      if key == '1'
+        
+      end
+    elsif key == '3'
+      print "Категория: действия с маршрутами\n"\
+            "(1) - cоздать маршрут\t (2) - добавить станцию в маршрут\n"\
+            "(3) - удалить станцию из маршрута\t (4) - назначить маршрут поезду\n"\
+            "(0)- назад\n"
+      key = gets.chomp
 
-  def trains_based_on_type(type)
-    if type == 'freight'
-      return @trains_on_station.select { | train | train.type == 'freight' }
-    elsif type == 'passenger'
-      return @trains_on_station.select { | train | train.type == 'passenger' }
     end
-  end
-end
-
-
-class Train
-  attr_reader :type, :speed, :wagons
-
-  def initialize(number, type, wagons)  # type = freight or passenger
-    @number = number
-    @type = type
-    @wagons = wagons
-    @speed = 0
-  end
-
-  def speed_increase
-    @speed += 10
-  end
-
-  def stop
-    @speed = 0
-  end
-
-  def attach_wagon
-    if @speed == 0
-      @wagons += 1
-    else
-      puts "Для этого действия поезд должен стоять на месте"
-    end
-  end
-
-  def unattach_wagon
-    if @speed == 0
-      @wagon -= 1
-    else
-      puts "Для этого действия поезд должен стоять на месте"
-    end
-  end
-
-  def choose_route(route)
-    @route = route
-    @current_location = 0
-  end
-
-  def move_forward
-    @current_location += 1
-  end
-
-  def move_backward
-    @current_location -= 1
-  end
-
-  def previous_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Предыдущая станция - #{@route.all_stations[@current_location-1]}"
-    end
-  end
-
-  def current_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Текущая станция - #{@route.all_stations[@current_location]}"
-    end
-  end
-
-  def next_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Следующая станция - #{@route.all_stations[@current_location+1]}"
-    end
-  end
-
-end
-
-
-class Route
-  attr_accessor :all_stations
-
-  def initialize(start, finish)
-    @start = start
-    @finish = finish
-    @intermediate = []
-  end
-
-  def add_intermediate_station(name)
-    @intermediate << name
-    @all_stations = [@start] + @intermediate + [@finish]
-  end
-
-  def remove_intermediate_station(name)
-    @intermediate.delete(name)
-    @all_stations = [@start] + @intermediate + [@finish]
-  end
 end
