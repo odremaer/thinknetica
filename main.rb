@@ -32,11 +32,15 @@ while true do
         print "Введите имя станции, на которой вы хотите посмотреть список поездов: "
         name = gets.chomp
         index = station_names.index(name)
-        trains_on_current_station = stations[index].trains_on_station
-        if trains_on_current_station.length == 0
-          "\n На этой станции нет поездов"
+        if station_names.include?(name)
+          trains_on_current_station = stations[index].trains_on_station
+          if trains_on_current_station.length == 0
+            "\n На этой станции нет поездов"
+          else
+            print "#{trains_on_current_station}\n"
+          end
         else
-          print "#{trains_on_current_station}\n"
+          print "Такой станции не существует\n"
         end
       end
 
@@ -50,7 +54,7 @@ while true do
             "(0)- назад\n"
       key = gets.chomp
       if key == '1'
-        
+
       end
     elsif key == '3'
       print "Категория: действия с маршрутами\n"\
@@ -58,6 +62,7 @@ while true do
             "(3) - удалить станцию из маршрута\t (4) - назначить маршрут поезду\n"\
             "(0)- назад\n"
       key = gets.chomp
-
+    elseif key == '0'
+      break
     end
 end
