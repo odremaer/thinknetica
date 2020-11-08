@@ -2,13 +2,22 @@ require_relative 'route'
 require_relative 'wagon'
 
 class Train
-  attr_reader :type, :speed
+  attr_reader :type, :speed, :number, :wagons
 
-  def initialize(number, type, wagon)  # type = freight or passenger
+  def initialize(number, type)  # type = freight or passenger
     @number = number
     @type = type
-    @wagons << wagon
     @speed = 0
+    @wagons = []
+    @current_location = 0
+  end
+
+  def wagon=(wagon)
+    @wagons << wagon
+  end
+
+  def unattach_wagon
+    @wagons.pop
   end
 
   def speed_increase
@@ -21,7 +30,6 @@ class Train
 
   def choose_route(route)
     @route = route
-    @current_location = 0
   end
 
   def move_forward
@@ -58,14 +66,14 @@ class Train
 end
 
 class PassengerTrain < Train
-  def initialize(number, type, wagon)
+  def initialize(number, type)
     super
     @type = 'passenger'
   end
 end
 
 class CargoTrain < Train
-  def initialize(number, type, wagon)
+  def initialize(number, type)
     super
     @type = 'cargo'
   end

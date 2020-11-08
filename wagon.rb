@@ -5,21 +5,23 @@ class Wagon
   #     в руби договорились использовать для таких целей protected)
   protected
 
-  def type; end
+  def type
+    @type
+  end
 end
 
 class CargoWagon < Wagon
   protected
 
-  def type
-    'cargo'
+  def initialize
+    @type = 'cargo'
   end
 end
 
 class PassengerWagon < Wagon
   protected
 
-  def type
-    'passenger'
+  def initialize
+    @type = 'passenger'
   end
 end
