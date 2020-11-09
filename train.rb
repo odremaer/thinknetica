@@ -34,11 +34,17 @@ class Train
   end
 
   def move_forward
-    @current_location += 1
+    if @route.all_stations.length == @current_location - 1
+      @current_location = 0
+    else
+      @current_location += 1
+    end
   end
 
   def move_backward
     @current_location -= 1
+    if @current_location == -1
+      @current_location = @route.all_stations.length - 1
   end
 
   def previous_station

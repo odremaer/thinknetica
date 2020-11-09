@@ -4,10 +4,7 @@ class Wagon
   # 2 - чтобы использовать метод type в дочерних классах (с private тоже будет работать, но
   #     в руби договорились использовать для таких целей protected)
   protected
-
-  def type
-    @type
-  end
+  attr_reader :type
 end
 
 class CargoWagon < Wagon
