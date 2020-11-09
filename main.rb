@@ -3,7 +3,6 @@ require_relative 'train'
 require_relative 'route'
 
 
-
 def main_menu
   print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
         "(1) - действия со станциями\t (2) - действия с поездами\n"\
@@ -11,7 +10,7 @@ def main_menu
   STDOUT.flush
   key = gets.chomp
   if key == '0'
-    'Выход'
+    print "Выход\n"
   elsif key == '1'
     actions_with_stations
   elsif key == '2'
@@ -32,26 +31,29 @@ def actions_with_stations
     station = Station.new(name)
     @stations << station
     @station_names << station.name
+    actions_with_stations
   elsif key == '2'
     print "#{@station_names}\n"
+    actions_with_stations
   elsif key == '3'
+    trains_on_current_station = []
     print "Введите имя станции, на которой вы хотите посмотреть список поездов: "
     name = gets.chomp
-    index = @station_names.index(name)
-    if @station_names.include?(name)
-      trains_on_current_station = @stations[index].trains_on_station
-      if trains_on_current_station.length == 0
-        print "На этой станции нет поездов\n"
-      else
-        print "#{trains_on_current_station}\n"
-      end
-    else
-      print "Такой станции не существует\n"
+    @trains.length.times do |k|
+        if name == @trains[k].current_station
+          trains_on_current_station << @trains[k].number
+        end
     end
+    if trains_on_current_station.length != 0
+      print "Список номеров поездов, находящихся на текущей станции: \n"\
+            "#{trains_on_current_station}"
+    else
+      print "На этой станции нет поездов"
+    end
+  actions_with_stations
   elsif key == '0'
     main_menu
   end
-  actions_with_stations
 end
 
 def actions_with_trains
@@ -63,6 +65,7 @@ def actions_with_trains
   key = gets.chomp
   if key == '0'
     main_menu
+
   elsif key == '1'
     print "Выберите тип поезда:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
@@ -78,17 +81,24 @@ def actions_with_trains
       train = PassengerTrain.new(train_number, 'passenger')
       @trains << train
     end
+  actions_with_trains
 
   elsif key == '2'
     print "Введите номер поезда, для которого хотите назначить маршрут:\n"
     train_number = gets.chomp
     @trains.each do |cur_train|
       if cur_train.number == train_number
-        current_train = cur_train
-        # дописать когда сделаю маршруты
-        current_train.choose_route(route)
+        print "Выберите маршрут, который хотите назначить этому поезду: \n"
+        @routes.length.times do |k|
+          print "(#{k}) - #{@routes[k].all_stations}\n"
+        end
+        cur_route = gets.chomp.to_i
+        cur_train.choose_route(@routes[cur_route])
+      else
+        print "Такого поезда не существует\n"
       end
     end
+  actions_with_trains
 
   elsif key == '3'
     print "Выберите тип вагона:\n"\
@@ -128,6 +138,7 @@ def actions_with_trains
         end
       end
     end
+  actions_with_trains
 
   elsif key == '4' # unattach Wagon
     print "Введите номер поезда, от которого хотите отсоединить вагон\n"
@@ -139,7 +150,7 @@ def actions_with_trains
         print "Такого поезда не существует\n"
       end
     end
-    actions_with_trains
+  actions_with_trains
 
   elsif key == '5' # move train forward
     print "Введите номер позда, который хотите переместить вперед: \n"
@@ -151,6 +162,7 @@ def actions_with_trains
         print "Такого поезда не существует"
       end
     end
+  actions_with_trains
 
   elsif key == '6' # move train backward
     print "Введите номер позда, который хотите переместить вперед: \n"
@@ -162,8 +174,8 @@ def actions_with_trains
         print "Такого поезда не существует"
       end
     end
-  end
   actions_with_trains
+  end
 end
 
 def actions_with_routes
@@ -175,17 +187,58 @@ def actions_with_routes
   if key == '0'
     main_menu
   elsif key == '1' # create route
-    
+    print "Введите название начальной станции: "
+    starting_point = gets.chomp
+    if @station_names.include?(starting_point)
+      print "Введите название конечной станции: "
+      last_point = gets.chomp
+      if @station_names.include?(last_point)
+        route = Route.new(starting_point, last_point)
+        @routes << route
+      else
+        print "Такой станции не существует\n"
+      end
+    else
+      print "Такой станции не существует\n"
+    end
+  actions_with_routes
+
   elsif key == '2' # add station to route
+    print "Выберите маршрут, к которому хотите добавить промежуточную станцию: \n"
+    @routes.length.times do |k|
+      print "(#{k}) - #{@routes[k].all_stations}\n"
+    end
+    cur_route = gets.chomp.to_i
+    print "Введите название станции: "
+    station_name = gets.chomp
+    if @station_names.include?(station_name)
+      @routes[cur_route].add_intermediate_station(station_name)
+      print "Готово!\n"
+    else
+      print "Такой станции не существует\n"
+    end
+  actions_with_routes
 
   elsif key == '3' # remove station from route
-
-
-
+    print "Выберите маршрут, у которого хотите удалить промежуточную станцию: \n"
+    @routes.length.times do |k|
+      print "(#{k}) - #{@routes[k].all_stations}"
+    end
+    cur_route = gets.chomp.to_i
+    print "Введите название станции: "
+    station_name = gets.chomp
+    if @routes[cur_route].intermediate.include?(station_name)
+      @routes[cur_route].remove_intermediate_station(station_name)
+      print "Готово!\n"
+    else
+      print "Эта станция - не промежуточная\n"
+    end
+  actions_with_routes
   end
 end
 
 @trains = []
 @stations = []
 @station_names = []
+@routes = []
 main_menu

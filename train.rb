@@ -29,6 +29,7 @@ class Train
   end
 
   def choose_route(route)
+    @current_location = 0
     @route = route
   end
 
@@ -41,27 +42,15 @@ class Train
   end
 
   def previous_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Предыдущая станция - #{@route.all_stations[@current_location-1]}"
-    end
+    @route.all_stations[@current_location-1]
   end
 
   def current_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Текущая станция - #{@route.all_stations[@current_location]}"
-    end
+    @route.all_stations[@current_location]
   end
 
   def next_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Следующая станция - #{@route.all_stations[@current_location+1]}"
-    end
+    @route.all_stations[@current_location+1]
   end
 end
 
