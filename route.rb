@@ -6,8 +6,6 @@ class Route
 
   include InstanceCounter
 
-  self.instances = 0
-
   def initialize(start, finish)
     @start = start
     @finish = finish

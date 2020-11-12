@@ -6,7 +6,6 @@ class Station
 
   include InstanceCounter
 
-  self.instances = 0
   @@stations = []
 
   def self.all

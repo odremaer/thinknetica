@@ -9,7 +9,6 @@ class Train
   include CompanyName
   include InstanceCounter
 
-  self.instances = 0
   @@trains = []
 
   def self.find(number)
