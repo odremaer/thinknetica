@@ -1,13 +1,19 @@
+require_relative 'instance_counter'
+
 class Route
   attr_accessor :all_stations
   attr_reader :route_name, :intermediate
 
-  def initialize(route_name = 0, start, finish)
-    @route_name = route_name
+  include InstanceCounter
+
+  self.instances = 0
+
+  def initialize(start, finish)
     @start = start
     @finish = finish
     @intermediate = []
     @all_stations = [start, finish]
+    register_instance
   end
 
   def add_intermediate_station(name)

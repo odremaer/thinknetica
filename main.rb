@@ -16,13 +16,14 @@ class Interface
           "(3) - действия с маршрутами\t (0) - выход\n"
     STDOUT.flush
     key = gets.chomp
-    if key == '0'
+    case key
+    when '0'
       print "Выход\n"
-    elsif key == '1'
+    when '1'
       actions_with_stations
-    elsif key == '2'
+    when '2'
       actions_with_trains
-    elsif key == '3'
+    when '3'
       actions_with_routes
     end
   end
@@ -114,6 +115,7 @@ class Interface
     station = Station.new(name)
     @stations << station
     @station_names << station.name
+    Station.add_obj(station)
   end
 
   def list_of_trains_on_station
@@ -123,11 +125,11 @@ class Interface
     @trains.length.times do |k|
       trains_on_current_station << @trains[k].number if name == @trains[k].current_station
     end
-    if trains_on_current_station.length != 0
+    if trains_on_current_station.empty?
+      print 'На этой станции нет поездов'
+    else
       print "Список номеров поездов, находящихся на текущей станции: \n"\
             "#{trains_on_current_station}"
-    else
-      print 'На этой станции нет поездов'
     end
   end
 
@@ -135,16 +137,19 @@ class Interface
     print "Выберите тип поезда:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
     pick = gets.chomp
-    if pick == '1'
-      print "Введите номер поезда\n"
-      train_number = gets.chomp
-      train = CargoTrain.new(train_number, 'cargo')
-      @trains << train
-    elsif pick == '2'
-      print "Введите номер поезда\n"
-      train_number = gets.chomp
-      train = PassengerTrain.new(train_number, 'passenger')
-      @trains << train
+    case pick
+      when '1'
+        print "Введите номер поезда\n"
+        train_number = gets.chomp
+        train = CargoTrain.new(train_number, 'cargo')
+        @trains << train
+        Train.add_obj(train)
+      when '2'
+        print "Введите номер поезда\n"
+        train_number = gets.chomp
+        train = PassengerTrain.new(train_number, 'passenger')
+        @trains << train
+        Train.add_obj(train)
     end
   end
 
