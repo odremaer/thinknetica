@@ -1,115 +1,302 @@
-class Station
-  attr_reader :trains_on_station
+require_relative 'station'
+require_relative 'train'
+require_relative 'route'
 
-  def initialize(name)
-    @name = name
-    @trains_on_station = []
+class Interface
+  def initialize
+    @trains = []
+    @stations = []
+    @station_names = []
+    @routes = []
   end
 
-  def add_train(train)
-    @trains_on_station << train
+  def main_menu
+    print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
+          "(1) - действия со станциями\t (2) - действия с поездами\n"\
+          "(3) - действия с маршрутами\t (0) - выход\n"
+    STDOUT.flush
+    key = gets.chomp
+    if key == '0'
+      print "Выход\n"
+    elsif key == '1'
+      actions_with_stations
+    elsif key == '2'
+      actions_with_trains
+    elsif key == '3'
+      actions_with_routes
+    end
   end
 
-  def trains_based_on_type(type)
-    if type == 'freight'
-      return @trains_on_station.select { | train | train.type == 'freight' }
-    elsif type == 'passenger'
-      return @trains_on_station.select { | train | train.type == 'passenger' }
+  def actions_with_stations
+    print "\nКатегория: действия со станциями\n"\
+          "(1) - cоздать станцию\t (2) - просмотреть список станций\n"\
+          "(3) - просмотреть список поездов на станции\t (0) - назад\n"
+    key = gets.chomp
+    case key
+    when '1'
+      create_station
+      actions_with_stations
+    when '2'
+      print "#{@station_names}\n"
+      actions_with_stations
+    when '3'
+      list_of_trains_on_station
+      actions_with_stations
+    when '0'
+      main_menu
+    end
+  end
+
+  def actions_with_trains
+    print "Категория: действия с поездами\n"\
+          "(1) - cоздать поезд\t (2) - назначить маршрут\n"\
+          "(3) - добавить вагон\t (4) - отцепить вагон\n"\
+          "(5) - переместить поезд вперед\t (6) - переместить поезд назад\n"\
+          "(0)- назад\n"
+    key = gets.chomp
+    case key
+    when '0'
+      main_menu
+
+    when '1'
+      create_train
+      actions_with_trains
+
+    when '2'
+      appoint_route
+      actions_with_trains
+
+    when '3'
+      add_wagon
+      actions_with_trains
+
+    when '4'
+      remove_wagon
+      actions_with_trains
+
+    when '5'
+      move_train_forward
+      actions_with_trains
+
+    when '6'
+      move_train_backward
+      actions_with_trains
+    end
+  end
+
+  def actions_with_routes
+    print "Категория: действия с маршрутами\n"\
+          "(1) - cоздать маршрут\t (2) - добавить станцию в маршрут\n"\
+          "(3) - удалить станцию из маршрута\t"\
+          "(0)- назад\n"
+    key = gets.chomp
+    case key
+    when '0'
+      main_menu
+
+    when '1'
+      create_route
+      actions_with_routes
+
+    when '2'
+      add_station_to_route
+      actions_with_routes
+
+    when '3'
+      remove_station_from_route
+      actions_with_routes
+    end
+  end
+
+  def create_station
+    print 'Введите имя станции: '
+    name = gets.chomp
+    station = Station.new(name)
+    @stations << station
+    @station_names << station.name
+  end
+
+  def list_of_trains_on_station
+    trains_on_current_station = []
+    print 'Введите имя станции, на которой вы хотите посмотреть список поездов: '
+    name = gets.chomp
+    @trains.length.times do |k|
+      trains_on_current_station << @trains[k].number if name == @trains[k].current_station
+    end
+    if trains_on_current_station.length != 0
+      print "Список номеров поездов, находящихся на текущей станции: \n"\
+            "#{trains_on_current_station}"
+    else
+      print 'На этой станции нет поездов'
+    end
+  end
+
+  def create_train
+    print "Выберите тип поезда:\n"\
+          "(1) - грузовой\t (2) - пассажирский\n"
+    pick = gets.chomp
+    if pick == '1'
+      print "Введите номер поезда\n"
+      train_number = gets.chomp
+      train = CargoTrain.new(train_number, 'cargo')
+      @trains << train
+    elsif pick == '2'
+      print "Введите номер поезда\n"
+      train_number = gets.chomp
+      train = PassengerTrain.new(train_number, 'passenger')
+      @trains << train
+    end
+  end
+
+  def appoint_route
+    print "Введите номер поезда, для которого хотите назначить маршрут:\n"
+    train_number = gets.chomp
+    @trains.each do |cur_train|
+      if cur_train.number == train_number
+        print "Выберите маршрут, который хотите назначить этому поезду: \n"
+        @routes.length.times do |k|
+          print "(#{k}) - #{@routes[k].all_stations}\n"
+        end
+        cur_route = gets.chomp.to_i
+        cur_train.choose_route(@routes[cur_route])
+      else
+        print "Такого поезда не существует\n"
+      end
+    end
+  end
+
+  def add_wagon
+    print "Выберите тип вагона:\n"\
+          "(1) - грузовой\t (2) - пассажирский\n"
+    pick = gets.chomp
+    if pick == '1'
+      wagon = CargoWagon.new
+      print "Введите номер поезда, к которому хотите прикрепить вагон\n"
+      train_number = gets.chomp
+      @trains.each do |cur_train|
+        if cur_train.number == train_number
+          current_train = cur_train
+          if current_train.type == 'cargo'
+            current_train.wagon = wagon
+          else
+            print "Это не грузовой поезд\n"
+          end
+        else
+          print "Такого поезда не существует\n"
+        end
+      end
+
+    elsif pick == '2'
+      wagon = PassengerWagon.new
+      print "Введите номер поезда, к которому хотите прикрепить вагон\n"
+      train_number = gets.chomp
+      @trains.each do |cur_train|
+        if cur_train.number == train_number
+          current_train = cur_train
+          if current_train.type == 'passenger'
+            current_train.wagon = wagon
+          else
+            print "Это не пассажирский поезд\n"
+          end
+        else
+          print "Такого поезда не существует\n"
+        end
+      end
+    end
+  end
+
+  def remove_wagon
+    print "Введите номер поезда, от которого хотите отсоединить вагон\n"
+    train_number = gets.chomp
+    @trains.each do |cur_train|
+      if cur_train.number == train_number
+        cur_train.unattach_wagon
+      else
+        print "Такого поезда не существует\n"
+      end
+    end
+  end
+
+  def move_train_forward
+    print "Введите номер поезда, который хотите переместить вперед: \n"
+    train_number = gets.chomp
+    @trains.each do |cur_train|
+      if cur_train.number == train_number
+        if cur_train.move_forward == 'final station'
+          print "Поезд дальше не едет, конечная станция\n"
+        else
+          cur_train.move_forward
+        end
+      else
+        print 'Такого поезда не существует'
+      end
+    end
+  end
+
+  def move_train_backward
+    print "Введите номер поезда, который хотите переместить назад \n"
+    train_number = gets.chomp
+    @trains.each do |cur_train|
+      if cur_train.number == train_number
+        if cur_train.move_backward == 'first station'
+          print 'Невозможно, поезд стоит на начальной станции'
+        else
+          cur_train.move_backward
+        end
+      else
+        print 'Такого поезда не существует'
+      end
+    end
+  end
+
+  def create_route
+    print 'Введите название начальной станции: '
+    starting_point = gets.chomp
+    if @station_names.include?(starting_point)
+      print 'Введите название конечной станции: '
+      last_point = gets.chomp
+      if @station_names.include?(last_point)
+        route = Route.new(starting_point, last_point)
+        @routes << route
+      else
+        print "Такой станции не существует\n"
+      end
+    else
+      print "Такой станции не существует\n"
+    end
+  end
+
+  def add_station_to_route
+    print "Выберите маршрут, к которому хотите добавить промежуточную станцию: \n"
+    @routes.length.times do |k|
+      print "(#{k}) - #{@routes[k].all_stations}\n"
+    end
+    cur_route = gets.chomp.to_i
+    print 'Введите название станции: '
+    station_name = gets.chomp
+    if @station_names.include?(station_name)
+      @routes[cur_route].add_intermediate_station(station_name)
+      print "Готово!\n"
+    else
+      print "Такой станции не существует\n"
+    end
+  end
+
+  def remove_station_from_route
+    print "Выберите маршрут, у которого хотите удалить промежуточную станцию: \n"
+    @routes.length.times do |k|
+      print "(#{k}) - #{@routes[k].all_stations}"
+    end
+    cur_route = gets.chomp.to_i
+    print 'Введите название станции: '
+    station_name = gets.chomp
+    if @routes[cur_route].intermediate.include?(station_name)
+      @routes[cur_route].remove_intermediate_station(station_name)
+      print "Готово!\n"
+    else
+      print "Эта станция - не промежуточная\n"
     end
   end
 end
 
-
-class Train
-  attr_reader :type, :speed, :wagons
-
-  def initialize(number, type, wagons)  # type = freight or passenger
-    @number = number
-    @type = type
-    @wagons = wagons
-    @speed = 0
-  end
-
-  def speed_increase
-    @speed += 10
-  end
-
-  def stop
-    @speed = 0
-  end
-
-  def attach_wagon
-    if @speed == 0
-      @wagons += 1
-    else
-      puts "Для этого действия поезд должен стоять на месте"
-    end
-  end
-
-  def unattach_wagon
-    if @speed == 0
-      @wagon -= 1
-    else
-      puts "Для этого действия поезд должен стоять на месте"
-    end
-  end
-
-  def choose_route(route)
-    @route = route
-    @current_location = 0
-  end
-
-  def move_forward
-    @current_location += 1
-  end
-
-  def move_backward
-    @current_location -= 1
-  end
-
-  def previous_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Предыдущая станция - #{@route.all_stations[@current_location-1]}"
-    end
-  end
-
-  def current_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Текущая станция - #{@route.all_stations[@current_location]}"
-    end
-  end
-
-  def next_station
-    if @route.all_stations.length == 0
-      puts "Станций нет"
-    else
-      puts "Следующая станция - #{@route.all_stations[@current_location+1]}"
-    end
-  end
-
-end
-
-
-class Route
-  attr_accessor :all_stations
-
-  def initialize(start, finish)
-    @start = start
-    @finish = finish
-    @intermediate = []
-  end
-
-  def add_intermediate_station(name)
-    @intermediate << name
-    @all_stations = [@start] + @intermediate + [@finish]
-  end
-
-  def remove_intermediate_station(name)
-    @intermediate.delete(name)
-    @all_stations = [@start] + @intermediate + [@finish]
-  end
-end
+Interface.new.main_menu
