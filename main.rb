@@ -40,8 +40,8 @@ class Interface
       print "#{@station_names}\n"
       actions_with_stations
     when '3'
-    list_of_trains_on_station
-    actions_with_stations
+      list_of_trains_on_station
+      actions_with_stations
     when '0'
       main_menu
     end
@@ -74,13 +74,13 @@ class Interface
       remove_wagon
       actions_with_trains
 
-   when '5'
-     move_train_forward
-     actions_with_trains
+    when '5'
+      move_train_forward
+      actions_with_trains
 
-   when '6'
-     move_train_backward
-     actions_with_trains
+    when '6'
+      move_train_backward
+      actions_with_trains
     end
   end
 
@@ -108,9 +108,8 @@ class Interface
     end
   end
 
-
   def create_station
-    print "Введите имя станции: "
+    print 'Введите имя станции: '
     name = gets.chomp
     station = Station.new(name)
     @stations << station
@@ -119,20 +118,19 @@ class Interface
 
   def list_of_trains_on_station
     trains_on_current_station = []
-    print "Введите имя станции, на которой вы хотите посмотреть список поездов: "
+    print 'Введите имя станции, на которой вы хотите посмотреть список поездов: '
     name = gets.chomp
     @trains.length.times do |k|
-        if name == @trains[k].current_station
-          trains_on_current_station << @trains[k].number
-        end
+      trains_on_current_station << @trains[k].number if name == @trains[k].current_station
     end
     if trains_on_current_station.length != 0
       print "Список номеров поездов, находящихся на текущей станции: \n"\
             "#{trains_on_current_station}"
     else
-      print "На этой станции нет поездов"
+      print 'На этой станции нет поездов'
     end
   end
+
   def create_train
     print "Выберите тип поезда:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
@@ -149,6 +147,7 @@ class Interface
       @trains << train
     end
   end
+
   def appoint_route
     print "Введите номер поезда, для которого хотите назначить маршрут:\n"
     train_number = gets.chomp
@@ -178,7 +177,7 @@ class Interface
         if cur_train.number == train_number
           current_train = cur_train
           if current_train.type == 'cargo'
-            current_train.wagon=wagon
+            current_train.wagon = wagon
           else
             print "Это не грузовой поезд\n"
           end
@@ -195,12 +194,12 @@ class Interface
         if cur_train.number == train_number
           current_train = cur_train
           if current_train.type == 'passenger'
-            current_train.wagon=wagon
+            current_train.wagon = wagon
           else
             print "Это не пассажирский поезд\n"
           end
         else
-        print "Такого поезда не существует\n"
+          print "Такого поезда не существует\n"
         end
       end
     end
@@ -229,7 +228,7 @@ class Interface
           cur_train.move_forward
         end
       else
-        print "Такого поезда не существует"
+        print 'Такого поезда не существует'
       end
     end
   end
@@ -240,21 +239,21 @@ class Interface
     @trains.each do |cur_train|
       if cur_train.number == train_number
         if cur_train.move_backward == 'first station'
-          print "Невозможно, поезд стоит на начальной станции"
+          print 'Невозможно, поезд стоит на начальной станции'
         else
           cur_train.move_backward
         end
       else
-        print "Такого поезда не существует"
+        print 'Такого поезда не существует'
       end
     end
   end
 
   def create_route
-    print "Введите название начальной станции: "
+    print 'Введите название начальной станции: '
     starting_point = gets.chomp
     if @station_names.include?(starting_point)
-      print "Введите название конечной станции: "
+      print 'Введите название конечной станции: '
       last_point = gets.chomp
       if @station_names.include?(last_point)
         route = Route.new(starting_point, last_point)
@@ -273,7 +272,7 @@ class Interface
       print "(#{k}) - #{@routes[k].all_stations}\n"
     end
     cur_route = gets.chomp.to_i
-    print "Введите название станции: "
+    print 'Введите название станции: '
     station_name = gets.chomp
     if @station_names.include?(station_name)
       @routes[cur_route].add_intermediate_station(station_name)
@@ -289,7 +288,7 @@ class Interface
       print "(#{k}) - #{@routes[k].all_stations}"
     end
     cur_route = gets.chomp.to_i
-    print "Введите название станции: "
+    print 'Введите название станции: '
     station_name = gets.chomp
     if @routes[cur_route].intermediate.include?(station_name)
       @routes[cur_route].remove_intermediate_station(station_name)

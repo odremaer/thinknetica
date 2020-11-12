@@ -1,7 +1,7 @@
 class Route
   attr_accessor :all_stations
-  attr_reader :route_name
-  attr_reader :intermediate
+  attr_reader :route_name, :intermediate
+
   def initialize(route_name = 0, start, finish)
     @route_name = route_name
     @start = start

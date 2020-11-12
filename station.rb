@@ -11,5 +11,4 @@ class Station
   def add_train(train)
     @trains_on_station << train
   end
-
 end

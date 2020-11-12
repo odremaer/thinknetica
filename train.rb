@@ -50,7 +50,7 @@ class Train
   end
 
   def previous_station
-    @route.all_stations[@current_location-1]
+    @route.all_stations[@current_location - 1]
   end
 
   def current_station
@@ -58,7 +58,7 @@ class Train
   end
 
   def next_station
-    @route.all_stations[@current_location+1]
+    @route.all_stations[@current_location + 1]
   end
 end
 
