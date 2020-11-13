@@ -1,8 +1,28 @@
 require_relative 'route'
 require_relative 'wagon'
+require_relative 'company_name'
+require_relative 'instance_counter'
 
 class Train
   attr_reader :type, :speed, :number, :wagons
+
+  include CompanyName
+  include InstanceCounter
+
+  @@trains = []
+
+  def self.find(number)
+    @@sought_train = @@trains.select { |train| train.number == number.to_s }
+    if @@sought_train == []
+      nil
+    else
+      @@sought_train[0]
+    end
+  end
+
+  def self.add_obj(train)
+    @@trains << train
+  end
 
   def initialize(number, type)  # type = freight or passenger
     @number = number
@@ -10,6 +30,7 @@ class Train
     @speed = 0
     @wagons = []
     @current_location = 0
+    register_instance
   end
 
   def wagon=(wagon)
@@ -63,6 +84,7 @@ class Train
 end
 
 class PassengerTrain < Train
+  self.instances = 0
   def initialize(number, type)
     super
     @type = 'passenger'
@@ -70,6 +92,7 @@ class PassengerTrain < Train
 end
 
 class CargoTrain < Train
+  self.instances = 0
   def initialize(number, type)
     super
     @type = 'cargo'
