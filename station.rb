@@ -6,6 +6,8 @@ class Station
 
   include InstanceCounter
 
+  STATION_NAME_FORMAT = /^[a-z]+$/i.freeze
+
   @@stations = []
 
   def self.all
@@ -19,10 +21,25 @@ class Station
   def initialize(name)
     @name = name
     @trains_on_station = []
+    validate!
     register_instance
   end
 
   def add_train(train)
     @trains_on_station << train
+  end
+
+  def valid?
+    validate!
+    true
+  rescue StandardError
+    false
+  end
+
+  protected
+
+  def validate!
+    raise 'Вы ничего не ввели' if name.length.zero?
+    raise "Некорректное имя станции\n Пример - Moscow" if name !~ STATION_NAME_FORMAT
   end
 end

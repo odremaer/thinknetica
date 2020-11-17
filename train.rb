@@ -9,6 +9,8 @@ class Train
   include CompanyName
   include InstanceCounter
 
+  NUMBER_FORMAT = /^[a-z1-9]{3}(-[a-z1-9]{2})?$/i.freeze
+
   @@trains = []
 
   def self.find(number)
@@ -30,6 +32,7 @@ class Train
     @speed = 0
     @wagons = []
     @current_location = 0
+    validate!
     register_instance
   end
 
@@ -81,10 +84,22 @@ class Train
   def next_station
     @route.all_stations[@current_location + 1]
   end
+
+  def valid?
+    validate!
+    true
+  rescue StandardError
+    false
+  end
+
+  protected
+
+  def validate!
+    raise 'Некорректный ввод данных' if number !~ NUMBER_FORMAT
+  end
 end
 
 class PassengerTrain < Train
-  self.instances = 0
   def initialize(number, type)
     super
     @type = 'passenger'
@@ -92,7 +107,6 @@ class PassengerTrain < Train
 end
 
 class CargoTrain < Train
-  self.instances = 0
   def initialize(number, type)
     super
     @type = 'cargo'

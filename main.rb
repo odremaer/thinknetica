@@ -116,6 +116,7 @@ class Interface
     @stations << station
     @station_names << station.name
     Station.add_obj(station)
+    print "Успешно!\n"
   end
 
   def list_of_trains_on_station
@@ -138,18 +139,21 @@ class Interface
           "(1) - грузовой\t (2) - пассажирский\n"
     pick = gets.chomp
     case pick
-      when '1'
-        print "Введите номер поезда\n"
-        train_number = gets.chomp
-        train = CargoTrain.new(train_number, 'cargo')
-        @trains << train
-        Train.add_obj(train)
-      when '2'
-        print "Введите номер поезда\n"
-        train_number = gets.chomp
-        train = PassengerTrain.new(train_number, 'passenger')
-        @trains << train
-        Train.add_obj(train)
+    when '1'
+      print "Введите номер поезда\n"
+      train_number = gets.chomp
+      train = CargoTrain.new(train_number, 'cargo')
+      @trains << train
+      Train.add_obj(train)
+      print "Успешно!\n"
+      end
+    when '2'
+      print "Введите номер поезда\n"
+      train_number = gets.chomp
+      train = PassengerTrain.new(train_number, 'passenger')
+      @trains << train
+      Train.add_obj(train)
+      print "Успешно!\n"
     end
   end
 
@@ -183,6 +187,7 @@ class Interface
           current_train = cur_train
           if current_train.type == 'cargo'
             current_train.wagon = wagon
+            print "Успешно!\n"
           else
             print "Это не грузовой поезд\n"
           end
@@ -200,6 +205,7 @@ class Interface
           current_train = cur_train
           if current_train.type == 'passenger'
             current_train.wagon = wagon
+            print "Успешно!\n"
           else
             print "Это не пассажирский поезд\n"
           end
@@ -231,6 +237,7 @@ class Interface
           print "Поезд дальше не едет, конечная станция\n"
         else
           cur_train.move_forward
+          print "Успешно!\n"
         end
       else
         print 'Такого поезда не существует'
@@ -247,6 +254,7 @@ class Interface
           print 'Невозможно, поезд стоит на начальной станции'
         else
           cur_train.move_backward
+          print "Успешно!\n"
         end
       else
         print 'Такого поезда не существует'
