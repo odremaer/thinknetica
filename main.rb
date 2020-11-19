@@ -14,7 +14,7 @@ class Interface
     print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
           "(1) - действия со станциями\t (2) - действия с поездами\n"\
           "(3) - действия с маршрутами\t (0) - выход\n"
-    STDOUT.flush
+    $stdout.flush
     key = gets.chomp
     case key
     when '0'
@@ -136,9 +136,7 @@ class Interface
     print 'Введите имя станции, на которой вы хотите посмотреть список поездов: '
     name = gets.chomp
     Station.all.each do |cur_station|
-      if cur_station.name == name
-        cur_station.trains_on_station
-      end
+      cur_station.trains_on_station if cur_station.name == name
     end
   end
 
@@ -186,7 +184,8 @@ class Interface
     print "Выберите тип вагона:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
     pick = gets.chomp
-    if pick == '1'
+    case pick
+    when '1'
       print "Укажите кол-во объема грузового вагона\n"
       capacity = gets.chomp
       wagon = CargoWagon.new(capacity.to_i)
@@ -206,7 +205,7 @@ class Interface
         end
       end
 
-    elsif pick == '2'
+    when '2'
       print "Укажите кол-во мест в пассажирском вагоне\n"
       capacity = gets.chomp
       wagon = PassengerWagon.new(capacity.to_i)
@@ -287,15 +286,15 @@ class Interface
     @trains.each do |train|
       if train.number == train_number
         cur_train = train
-        if cur_train.free_amount_of_places - 1 < 0
-          puts "Мест нет"
+        if (cur_train.free_amount_of_places - 1).negative?
+          puts 'Мест нет'
         else
           cur_train.wagons.each do |wagon|
-            if wagon.capacity != 0
-              wagon.take_a_seat
-              puts cur_train.free_amount_of_places
-              break
-            end
+            next unless wagon.capacity != 0
+
+            wagon.take_a_seat
+            puts cur_train.free_amount_of_places
+            break
           end
         end
       else

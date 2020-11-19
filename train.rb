@@ -4,7 +4,7 @@ require_relative 'company_name'
 require_relative 'instance_counter'
 
 class Train
-  attr_reader :type, :speed, :number
+  attr_reader :type, :speed, :number, :wagons
 
   include CompanyName
   include InstanceCounter
@@ -45,10 +45,6 @@ class Train
     @wagons << wagon
   end
 
-  def wagons
-    @wagons
-  end
-
   def unattach_wagon
     @wagons.pop
   end
@@ -85,7 +81,7 @@ class Train
   end
 
   def move_backward
-    if @current_location == 0
+    if @current_location.zero?
       'first station'
     else
       @current_location -= 1
