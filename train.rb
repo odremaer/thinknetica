@@ -4,7 +4,7 @@ require_relative 'company_name'
 require_relative 'instance_counter'
 
 class Train
-  attr_reader :type, :speed, :number, :wagons
+  attr_reader :type, :speed, :number
 
   include CompanyName
   include InstanceCounter
@@ -26,12 +26,17 @@ class Train
     @@trains << train
   end
 
+  def self.trains
+    @@trains
+  end
+
   def initialize(number, type)  # type = freight or passenger
     @number = number
     @type = type
     @speed = 0
     @wagons = []
     @current_location = 0
+    @free_amount_of_places = 0
     validate!
     register_instance
   end
@@ -40,8 +45,22 @@ class Train
     @wagons << wagon
   end
 
+  def wagons
+    @wagons
+  end
+
   def unattach_wagon
     @wagons.pop
+  end
+
+  def return_wagons
+    @wagons.each { |wagon| puts wagon }
+  end
+
+  def free_amount_of_places
+    @free_amount_of_places = 0
+    @wagons.each { |wagon| @free_amount_of_places += wagon.capacity }
+    @free_amount_of_places
   end
 
   def speed_increase
