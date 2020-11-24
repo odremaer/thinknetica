@@ -22,8 +22,6 @@ class CargoWagon < Wagon
     if @capacity - amount >= 0
       @capacity -= amount
       @occupied_capacity += amount
-    else
-      'impossible'
     end
   end
 
@@ -41,7 +39,7 @@ class PassengerWagon < Wagon
 
   def take_a_seat
     if @capacity.zero?
-      'impossible'
+      nil
     else
       @capacity -= 1
       @occupied_places += 1

@@ -14,7 +14,6 @@ class Interface
     print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
           "(1) - действия со станциями\t (2) - действия с поездами\n"\
           "(3) - действия с маршрутами\t (0) - выход\n"
-    $stdout.flush
     key = gets.chomp
     case key
     when '0'
@@ -136,7 +135,9 @@ class Interface
     print 'Введите имя станции, на которой вы хотите посмотреть список поездов: '
     name = gets.chomp
     Station.all.each do |cur_station|
-      cur_station.trains_on_station if cur_station.name == name
+      if cur_station.name == name
+        cur_station.trains_on_station { |train| puts train if train.current_station == name }
+      end
     end
   end
 
@@ -244,7 +245,7 @@ class Interface
     train_number = gets.chomp
     @trains.each do |cur_train|
       if cur_train.number == train_number
-        if cur_train.move_forward == 'final station'
+        if cur_train.move_forward.nil?
           print "Поезд дальше не едет, конечная станция\n"
         else
           cur_train.move_forward
@@ -261,7 +262,7 @@ class Interface
     train_number = gets.chomp
     @trains.each do |cur_train|
       if cur_train.number == train_number
-        if cur_train.move_backward == 'first station'
+        if cur_train.move_backward.nil?
           print 'Невозможно, поезд стоит на начальной станции'
         else
           cur_train.move_backward
@@ -276,7 +277,9 @@ class Interface
   def show_train_wagons
     print "Введите номер поезда, у которого хотите просмотреть вагоны \n"
     train_number = gets.chomp
-    @trains.each { |train| train.return_wagons if train.number == train_number }
+    @trains.each do |train|
+      train.return_wagons { |wagon| puts wagon } if train.number == train_number
+    end
   end
 
   def take_up_place_in_passenger_train
@@ -285,18 +288,7 @@ class Interface
     train_number = gets.chomp
     @trains.each do |train|
       if train.number == train_number
-        cur_train = train
-        if (cur_train.free_amount_of_places - 1).negative?
-          puts 'Мест нет'
-        else
-          cur_train.wagons.each do |wagon|
-            next unless wagon.capacity != 0
-
-            wagon.take_a_seat
-            puts cur_train.free_amount_of_places
-            break
-          end
-        end
+        take_up_place(train)
       else
         puts "Такого поезда нет\n"
       end
@@ -304,29 +296,11 @@ class Interface
   end
 
   def take_up_volume_in_cargo_train
-    cur_train = 0
-    cur_wagon = 0
     print "Введите номер поезда, в котором хотите занять место \n"
     train_number = gets.chomp
     @trains.each do |train|
       if train.number == train_number
-        print "Сколько объема хотите занять?\n"
-        volume = gets.chomp.to_i
-        cur_train = train
-        if cur_train.free_amount_of_places - volume < 0
-          print "Места нет, доступный объем - #{cur_train.free_amount_of_places}\n"
-        else
-          cur_train.wagons.each do |wagon|
-            cur_wagon += 1
-            if wagon.capacity - volume >= 0
-              wagon.take_up_volume(volume)
-              print "Оставшийся объем - #{cur_train.free_amount_of_places}\n"
-              break
-            else
-              print "В #{cur_wagon} вагоне нет места\n"
-            end
-          end
-        end
+        take_up_volume(train)
       else
         puts "Такого поезда нет\n"
       end
@@ -379,6 +353,42 @@ class Interface
       print "Готово!\n"
     else
       print "Эта станция - не промежуточная\n"
+    end
+  end
+
+  def take_up_volume(train)
+    cur_wagon = 0
+    print "Сколько объема хотите занять?\n"
+    volume = gets.chomp.to_i
+    cur_train = train
+    if (cur_train.free_amount_of_places - volume).negative?
+      print "Места нет, доступный объем - #{cur_train.free_amount_of_places}\n"
+    else
+      cur_train.wagons.each do |wagon|
+        cur_wagon += 1
+        if wagon.capacity - volume >= 0
+          wagon.take_up_volume(volume)
+          print "Оставшийся объем - #{cur_train.free_amount_of_places}\n"
+          break
+        else
+          print "В #{cur_wagon} вагоне нет места\n"
+        end
+      end
+    end
+  end
+
+  def take_up_place(train)
+    cur_train = train
+    if (cur_train.free_amount_of_places - 1).negative?
+      puts 'Мест нет'
+    else
+      cur_train.wagons.each do |wagon|
+        next unless wagon.capacity != 0
+
+        wagon.take_a_seat
+        print "#{cur_train.free_amount_of_places} - оставшееся место\n"
+        break
+      end
     end
   end
 end

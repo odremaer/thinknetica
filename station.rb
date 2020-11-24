@@ -25,7 +25,9 @@ class Station
   end
 
   def trains_on_station
-    Train.trains.each { |train| puts train if train.current_station == @name }
+    Train.trains.each do |train|
+      yield(train)
+    end
   end
 
   def valid?

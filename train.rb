@@ -50,7 +50,9 @@ class Train
   end
 
   def return_wagons
-    @wagons.each { |wagon| puts wagon }
+    @wagons.each do |wagon|
+      yield(wagon)
+    end
   end
 
   def free_amount_of_places
@@ -74,7 +76,7 @@ class Train
 
   def move_forward
     if @current_location == @route.all_stations.length - 1
-      'final station'
+      nil
     else
       @current_location += 1
     end
@@ -82,7 +84,7 @@ class Train
 
   def move_backward
     if @current_location.zero?
-      'first station'
+      nil
     else
       @current_location -= 1
     end
