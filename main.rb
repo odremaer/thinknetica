@@ -14,7 +14,6 @@ class Interface
     print "Зайдите в выбранную категорию(нажмите на нужную цифру):\n"\
           "(1) - действия со станциями\t (2) - действия с поездами\n"\
           "(3) - действия с маршрутами\t (0) - выход\n"
-    STDOUT.flush
     key = gets.chomp
     case key
     when '0'
@@ -53,7 +52,8 @@ class Interface
           "(1) - cоздать поезд\t (2) - назначить маршрут\n"\
           "(3) - добавить вагон\t (4) - отцепить вагон\n"\
           "(5) - переместить поезд вперед\t (6) - переместить поезд назад\n"\
-          "(0)- назад\n"
+          "(7) - вывести список вагонов у поезда\t (8) - занять место в пассажирском поезде\n"\
+          "(9) - занять место в грузовом поезде\t (0)- назад\n"
     key = gets.chomp
     case key
     when '0'
@@ -81,6 +81,18 @@ class Interface
 
     when '6'
       move_train_backward
+      actions_with_trains
+
+    when '7'
+      show_train_wagons
+      actions_with_trains
+
+    when '8'
+      take_up_place_in_passenger_train
+      actions_with_trains
+
+    when '9'
+      take_up_volume_in_cargo_train
       actions_with_trains
     end
   end
@@ -120,17 +132,12 @@ class Interface
   end
 
   def list_of_trains_on_station
-    trains_on_current_station = []
     print 'Введите имя станции, на которой вы хотите посмотреть список поездов: '
     name = gets.chomp
-    @trains.length.times do |k|
-      trains_on_current_station << @trains[k].number if name == @trains[k].current_station
-    end
-    if trains_on_current_station.empty?
-      print 'На этой станции нет поездов'
-    else
-      print "Список номеров поездов, находящихся на текущей станции: \n"\
-            "#{trains_on_current_station}"
+    Station.all.each do |cur_station|
+      if cur_station.name == name
+        cur_station.trains_on_station { |train| puts train if train.current_station == name }
+      end
     end
   end
 
@@ -146,7 +153,6 @@ class Interface
       @trains << train
       Train.add_obj(train)
       print "Успешно!\n"
-      end
     when '2'
       print "Введите номер поезда\n"
       train_number = gets.chomp
@@ -155,6 +161,7 @@ class Interface
       Train.add_obj(train)
       print "Успешно!\n"
     end
+    print @trains
   end
 
   def appoint_route
@@ -178,8 +185,11 @@ class Interface
     print "Выберите тип вагона:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
     pick = gets.chomp
-    if pick == '1'
-      wagon = CargoWagon.new
+    case pick
+    when '1'
+      print "Укажите кол-во объема грузового вагона\n"
+      capacity = gets.chomp
+      wagon = CargoWagon.new(capacity.to_i)
       print "Введите номер поезда, к которому хотите прикрепить вагон\n"
       train_number = gets.chomp
       @trains.each do |cur_train|
@@ -196,8 +206,10 @@ class Interface
         end
       end
 
-    elsif pick == '2'
-      wagon = PassengerWagon.new
+    when '2'
+      print "Укажите кол-во мест в пассажирском вагоне\n"
+      capacity = gets.chomp
+      wagon = PassengerWagon.new(capacity.to_i)
       print "Введите номер поезда, к которому хотите прикрепить вагон\n"
       train_number = gets.chomp
       @trains.each do |cur_train|
@@ -233,7 +245,7 @@ class Interface
     train_number = gets.chomp
     @trains.each do |cur_train|
       if cur_train.number == train_number
-        if cur_train.move_forward == 'final station'
+        if cur_train.move_forward.nil?
           print "Поезд дальше не едет, конечная станция\n"
         else
           cur_train.move_forward
@@ -250,7 +262,7 @@ class Interface
     train_number = gets.chomp
     @trains.each do |cur_train|
       if cur_train.number == train_number
-        if cur_train.move_backward == 'first station'
+        if cur_train.move_backward.nil?
           print 'Невозможно, поезд стоит на начальной станции'
         else
           cur_train.move_backward
@@ -258,6 +270,39 @@ class Interface
         end
       else
         print 'Такого поезда не существует'
+      end
+    end
+  end
+
+  def show_train_wagons
+    print "Введите номер поезда, у которого хотите просмотреть вагоны \n"
+    train_number = gets.chomp
+    @trains.each do |train|
+      train.return_wagons { |wagon| puts wagon } if train.number == train_number
+    end
+  end
+
+  def take_up_place_in_passenger_train
+    cur_train = 0
+    print "Введите номер поезда, в котором хотите занять место \n"
+    train_number = gets.chomp
+    @trains.each do |train|
+      if train.number == train_number
+        take_up_place(train)
+      else
+        puts "Такого поезда нет\n"
+      end
+    end
+  end
+
+  def take_up_volume_in_cargo_train
+    print "Введите номер поезда, в котором хотите занять место \n"
+    train_number = gets.chomp
+    @trains.each do |train|
+      if train.number == train_number
+        take_up_volume(train)
+      else
+        puts "Такого поезда нет\n"
       end
     end
   end
@@ -308,6 +353,42 @@ class Interface
       print "Готово!\n"
     else
       print "Эта станция - не промежуточная\n"
+    end
+  end
+
+  def take_up_volume(train)
+    cur_wagon = 0
+    print "Сколько объема хотите занять?\n"
+    volume = gets.chomp.to_i
+    cur_train = train
+    if (cur_train.free_amount_of_places - volume).negative?
+      print "Места нет, доступный объем - #{cur_train.free_amount_of_places}\n"
+    else
+      cur_train.wagons.each do |wagon|
+        cur_wagon += 1
+        if wagon.capacity - volume >= 0
+          wagon.take_up_volume(volume)
+          print "Оставшийся объем - #{cur_train.free_amount_of_places}\n"
+          break
+        else
+          print "В #{cur_wagon} вагоне нет места\n"
+        end
+      end
+    end
+  end
+
+  def take_up_place(train)
+    cur_train = train
+    if (cur_train.free_amount_of_places - 1).negative?
+      puts 'Мест нет'
+    else
+      cur_train.wagons.each do |wagon|
+        next unless wagon.capacity != 0
+
+        wagon.take_a_seat
+        print "#{cur_train.free_amount_of_places} - оставшееся место\n"
+        break
+      end
     end
   end
 end

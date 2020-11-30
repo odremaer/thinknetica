@@ -2,7 +2,7 @@ require_relative 'train'
 require_relative 'instance_counter'
 
 class Station
-  attr_reader :trains_on_station, :name
+  attr_reader :name
 
   include InstanceCounter
 
@@ -20,13 +20,14 @@ class Station
 
   def initialize(name)
     @name = name
-    @trains_on_station = []
     validate!
     register_instance
   end
 
-  def add_train(train)
-    @trains_on_station << train
+  def trains_on_station
+    Train.trains.each do |train|
+      yield(train)
+    end
   end
 
   def valid?

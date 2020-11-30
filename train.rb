@@ -26,12 +26,17 @@ class Train
     @@trains << train
   end
 
+  def self.trains
+    @@trains
+  end
+
   def initialize(number, type)  # type = freight or passenger
     @number = number
     @type = type
     @speed = 0
     @wagons = []
     @current_location = 0
+    @free_amount_of_places = 0
     validate!
     register_instance
   end
@@ -42,6 +47,18 @@ class Train
 
   def unattach_wagon
     @wagons.pop
+  end
+
+  def return_wagons
+    @wagons.each do |wagon|
+      yield(wagon)
+    end
+  end
+
+  def free_amount_of_places
+    @free_amount_of_places = 0
+    @wagons.each { |wagon| @free_amount_of_places += wagon.capacity }
+    @free_amount_of_places
   end
 
   def speed_increase
@@ -59,15 +76,15 @@ class Train
 
   def move_forward
     if @current_location == @route.all_stations.length - 1
-      'final station'
+      nil
     else
       @current_location += 1
     end
   end
 
   def move_backward
-    if @current_location == 0
-      'first station'
+    if @current_location.zero?
+      nil
     else
       @current_location -= 1
     end
