@@ -1,14 +1,21 @@
 require_relative 'company_name'
+require_relative 'accessors'
+require_relative 'validation'
 
 class Wagon
-  attr_accessor :capacity
+  include CompanyName
+  include Accessors
+  attr_accessor_with_history :capacity, :what
 
+  include Validation
+  validate :capacity, :presence
+  validate :what, :presence
+  validate :capacity, :format, /^[0-9]{1}$/
+  validate :capacity, :check_type, String
   # protected стоит по двум причинам:
   # 1 - на стороне пользователя эти методы должны быть недоступны, ибо они нужны только на программном уровне
   # 2 - чтобы использовать метод type в дочерних классах (с private тоже будет работать, но
   #     в руби договорились использовать для таких целей protected)
-
-  include CompanyName
 
   protected
 

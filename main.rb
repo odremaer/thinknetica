@@ -165,6 +165,7 @@ class Interface
   end
 
   def appoint_route
+    check_if_any_train_were_created
     print "Введите номер поезда, для которого хотите назначить маршрут:\n"
     train_number = gets.chomp
     @trains.each do |cur_train|
@@ -182,6 +183,7 @@ class Interface
   end
 
   def add_wagon
+    check_if_any_train_were_created
     print "Выберите тип вагона:\n"\
           "(1) - грузовой\t (2) - пассажирский\n"
     pick = gets.chomp
@@ -229,6 +231,7 @@ class Interface
   end
 
   def remove_wagon
+    check_if_any_train_were_created
     print "Введите номер поезда, от которого хотите отсоединить вагон\n"
     train_number = gets.chomp
     @trains.each do |cur_train|
@@ -241,6 +244,7 @@ class Interface
   end
 
   def move_train_forward
+    check_if_any_train_were_created
     print "Введите номер поезда, который хотите переместить вперед: \n"
     train_number = gets.chomp
     @trains.each do |cur_train|
@@ -258,6 +262,7 @@ class Interface
   end
 
   def move_train_backward
+    check_if_any_train_were_created
     print "Введите номер поезда, который хотите переместить назад \n"
     train_number = gets.chomp
     @trains.each do |cur_train|
@@ -275,6 +280,7 @@ class Interface
   end
 
   def show_train_wagons
+    check_if_any_train_were_created
     print "Введите номер поезда, у которого хотите просмотреть вагоны \n"
     train_number = gets.chomp
     @trains.each do |train|
@@ -389,6 +395,13 @@ class Interface
         print "#{cur_train.free_amount_of_places} - оставшееся место\n"
         break
       end
+    end
+  end
+
+  def check_if_any_train_were_created
+    if @trains.length.zero?
+      print "Вы еще не создали ни одного поезда\n"
+      actions_with_trains
     end
   end
 end

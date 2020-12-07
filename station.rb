@@ -1,5 +1,6 @@
 require_relative 'train'
 require_relative 'instance_counter'
+require_relative 'validation'
 
 class Station
   attr_reader :name
@@ -7,6 +8,9 @@ class Station
   include InstanceCounter
 
   STATION_NAME_FORMAT = /^[a-z]+$/i.freeze
+  include Validation
+  validate :name, :format, STATION_NAME_FORMAT
+  validate :name, :presence
 
   @@stations = []
 
@@ -28,19 +32,5 @@ class Station
     Train.trains.each do |train|
       yield(train)
     end
-  end
-
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
-  protected
-
-  def validate!
-    raise 'Вы ничего не ввели' if name.length.zero?
-    raise "Некорректное имя станции\n Пример - Moscow" if name !~ STATION_NAME_FORMAT
   end
 end

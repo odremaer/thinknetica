@@ -2,14 +2,17 @@ require_relative 'route'
 require_relative 'wagon'
 require_relative 'company_name'
 require_relative 'instance_counter'
+require_relative 'validation'
 
 class Train
-  attr_reader :type, :speed, :number, :wagons
+  attr_reader :type, :speed, :number, :wagons, :route
 
   include CompanyName
   include InstanceCounter
 
   NUMBER_FORMAT = /^[a-z1-9]{3}(-[a-z1-9]{2})?$/i.freeze
+  include Validation
+  validate :number, :format, NUMBER_FORMAT
 
   @@trains = []
 
@@ -100,19 +103,6 @@ class Train
 
   def next_station
     @route.all_stations[@current_location + 1]
-  end
-
-  def valid?
-    validate!
-    true
-  rescue StandardError
-    false
-  end
-
-  protected
-
-  def validate!
-    raise 'Некорректный ввод данных' if number !~ NUMBER_FORMAT
   end
 end
 
